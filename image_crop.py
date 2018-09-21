@@ -4,7 +4,7 @@ import os
 from PIL import Image
 
 # Set name of folder
-folder = "images/verbal_reasoning_"
+folder = "images/"
 
 # List all the files in the directory
 files = os.listdir(folder)
@@ -39,9 +39,9 @@ for file in files:
         
     # Trim the image  
     if(len(a) > 0):
-        vim = im[:a[0][0], :800, :]
+        vim = im[:a[0][0]-10, :800, :]
     else:
-        vim = im[:, :600, :]
+        vim = im[:, :800, :]
         
     # Save the cropped image
     vim = Image.fromarray(vim)

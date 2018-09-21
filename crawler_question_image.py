@@ -4,7 +4,7 @@ import time
 import os
 
 # URL of page
-url = "https://www.indiabix.com/verbal-reasoning/direction-sense-test/"
+url = "http://www.indiabix.com/non-verbal-reasoning/image-analysis/"
 
 # Declare Chrome object
 browser = webdriver.Chrome("chromedriver")
@@ -16,11 +16,15 @@ browser.get(url)
 title = browser.title
 
 # Clean the title
-title = title.split("-")[0].lower().replace(" ", "_")
+title = title.split("-")[0].lower().replace(" ", "_").replace(".", "_")
 
-# Create a directory to store images
+# Create a directory to store images of explanations
 if not os.path.exists(title):
     os.mkdir(title)
+    
+# Create a directory to store images of questions
+if not os.path.exists(title + "_q"):
+    os.mkdir(title + "_q")
 
 k = 0
 
@@ -29,10 +33,6 @@ file.write("Question, A, B, C, D, E, Correct")
 file.write("\n")
 
 while True:
-    
-    # Scrape the questions
-    questions = browser.find_elements_by_class_name("bix-td-qtxt")
-    questions = [question.text for question in questions]
     
     # Scrape the options
     options = browser.find_elements_by_class_name("bix-tbl-options")
@@ -64,30 +64,38 @@ while True:
     idx = []
     
     # Write to file
-    for i in range(len(questions)):
+    for i in range(len(answers)): 
         if(len(opts[i]) < 4):
             idx.append(i)
             continue
         else:
-            file.write(questions[i].replace(",", "").replace("\n", "") + ",")
+            file.write(",")
             for j in range(len(opts[i])):
-                file.write(opts[i][j].replace(",", "") + ",")
+                file.write(opts[i][j].replace(",", ".") + ",")
             if(len(opts[i]) == 4):
                 file.write(",")
             file.write(answers[i] + "\n")
+            
+    # Scrape the questions
+    questions = browser.find_elements_by_class_name("bix-td-qtxt")
     
-    # Screenshot the explanations
+    # Scrape the explanations
     explanations = browser.find_elements_by_class_name("bix-ans-description")
-    for i in range(len(explanations)):
+    
+    # Screenshot questions and explanations
+    for i in range(len(questions)):
         if(len(idx) > 0 and i in idx):
             continue
         else:
+            browser.execute_script("arguments[0].scrollIntoView();", questions[i])
+            browser.get_screenshot_as_file(title + "_q" + "/image" + str(k) + '.png')
+            time.sleep(2)
             browser.execute_script("arguments[0].scrollIntoView();", explanations[i])
-            if "No answer" not in explanations[i].text:    
-                browser.get_screenshot_as_file(title + '/image' + str(k) + '.png')
+            if "No answer" not in explanations[i].text:
+                browser.get_screenshot_as_file(title + "/image" + str(k) + ".png")
                 time.sleep(2)
             k += 1
-        
+ 
     # Move to next page
     try:          
         browser.find_element_by_link_text("Next »").click()
@@ -98,11 +106,3 @@ file.close()
 
 # Close the browser session
 browser.close()
-
-import pygame
-file = 'raja.mp3'
-pygame.init()
-pygame.mixer.init()
-pygame.mixer.music.load(file)
-pygame.mixer.music.play()
-pygame.event.wait()

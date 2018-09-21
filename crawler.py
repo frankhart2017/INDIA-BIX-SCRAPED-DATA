@@ -4,7 +4,7 @@ import time
 import os
 
 # URL of page
-url = "https://www.indiabix.com/aptitude/average/"
+url = "http://www.indiabix.com/c-programming/declarations-and-initializations/"
 
 # Declare Chrome object
 browser = webdriver.Chrome("chromedriver")
